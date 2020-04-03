@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>vuln-spring Home</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div th:replace="fragments/header :: header"></div>
+	<form action="checkdb" method="post"> 
+		<input type="hidden" name="dbpath" value="http://127.0.0.1:3306/vulnspring">
+		<input type="submit" value="Check DB">
+	</form>
+	<p th:text="'Got response from DB:' + ${dbResponse} + '!'" />
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>vuln-spring Home</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div th:replace="fragments/header :: header"></div>
+	<p th:text="'Hello, ' + ${username} + '!'" />
+	<ul>
+		<li><a href="/update">Update</a></li>
+		<li><a href="/transfer">Transfer</a></li>
+		<li><a href="/checkdb">Check DB</a></li>
+	</ul>
+</body>
+</html>

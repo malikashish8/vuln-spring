@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>vuln-spring Update</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div th:replace="fragments/header :: header"></div>
+	<span th:if="${name}">
+		<p th:utext="'Your name is ' + ${name}">
+	</span>
+	
+	<p>
+		Update Name: <br/>
+		<form action="/update" method="post">
+			New Name: <input name="newname">
+			<input type=submit>
+		</form>
+	</p>
+</body>
+</html>

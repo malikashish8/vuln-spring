@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>vuln-spring Login</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div th:replace="fragments/header :: header"></div>
+
+	<form action="/login" method="post">
+		Username <input name="username" required><br/>
+		Password <input name="password" type="password" required><br/>
+		<input type="submit" value="Submit">
+	</form>
+</body>
+</html>

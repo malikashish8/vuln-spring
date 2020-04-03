@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>vuln-spring Login</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div th:replace="fragments/header :: header"></div>
+	
+	<p th:text="'Current Balance: $' + ${balance}"/>
+	<form target="/transfer" method="post">
+		To Account: <input name="toaccount" required>
+		Amount: $ <input type=number value="0.0" name="amount" step=".01" required>
+		<input type=submit>
+	</form>
+	
+	<span th:if="${message}">
+		<th:text="'Success: ' + ${message}">
+	</span>
+	
+	<span th:if="${error}">
+		<p th:text="'Error: ' + ${error}">
+	</span>
+	
+</body>
+</html>
