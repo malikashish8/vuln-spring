@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>vuln-spring Issue</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+</head>
+<body>
+	<div th:replace="fragments/header :: header"></div>
+	<span th:if="${parsedDocument}">
+		Parsed Document:<br/>
+		<p th:text="${parsedDocument}"/>
+	</span>
+	XML Input:<br/>
+	<textarea id="xmlInput" type="text" cols="50" rows="10">
+	</textarea><br/>
+	<button id="submitXHR">Submit</button><br/>
+	<span id="displayParsedDocument"></span>
+<script>
+document.getElementById("xmlInput").value = `
+<?xml version="1.0"?>
+<details>
+	<username>alice</username>
+</details>`.trim()
+	
+var xhr;
+
+function submitXHR() {
+	xhr = new XMLHttpRequest();
+	xhr.addEventListener("load", reqListener);
+	xhr.open("POST", "/issue");
+	xhr.setRequestHeader("Content-Type", "application/xml");
+	xhr.send(document.getElementById("xmlInput").value.trim());
+}
+function reqListener (event) {
+	var parsedXML = /<span>([\s\S]*?)<\/span>/.exec(xhr.response)[1].trim();
+	document.getElementById("displayParsedDocument").innerHTML = parsedXML; 
+}
+
+document.getElementById("submitXHR").onclick=submitXHR
+
+</script>
+</body>
+</html>

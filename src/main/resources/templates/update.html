@@ -8,6 +8,7 @@
 <body>
 	<div th:replace="fragments/header :: header"></div>
 	<span th:if="${name}">
+		<!--  Issue XSS -->
 		<p th:utext="'Your name is ' + ${name}">
 	</span>
 	

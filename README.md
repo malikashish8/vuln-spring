@@ -11,11 +11,11 @@ Vulnerabilities are tagged with a comment with `Issue` string. Searching for it 
 * SSRF
 * Hardcoded Secrets
 * Sensitive Data Exposure - Logging of Sensitive data
+* XXE
 
 ### ToDo
 * Broken Access Control - JWT issues
 * Insecure Deserialization
-* XXE
 * Open Redirect
 
 ## Design

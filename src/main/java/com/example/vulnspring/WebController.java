@@ -1,24 +1,36 @@
 package com.example.vulnspring;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Scanner;
 
 import javax.servlet.http.HttpSession;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 @Controller
 public class WebController {
@@ -189,5 +201,42 @@ public class WebController {
 		return "transfer";
 
 	}
-
+	
+	@GetMapping("/issue")
+	public String issue(Model model) {
+		return "issue";
+	}
+	
+	@PostMapping(value="/issue",
+			consumes = MediaType.APPLICATION_XML_VALUE)
+	public String issue(Model model, @RequestBody String body) 
+			throws ParserConfigurationException, SAXException, IOException {
+		// Issue - XXE
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		Document doc = dBuilder.parse(new InputSource(new StringReader(body)));
+		
+		String parsedDocument = getNodeString(doc.getFirstChild(), new StringBuffer()).toString();
+		logger.debug("Parsed XML: \n" + parsedDocument);
+		model.addAttribute("parsedDocument", parsedDocument);
+	
+		return "issue";
+	}
+	
+	StringBuffer getNodeString(Node node, StringBuffer currentString) {
+		String nodeName = node.getNodeName();
+		// ignore empty text node
+		if(nodeName.equals("#text") && node.getNodeValue().trim().equals("")) {
+			return currentString;
+		}
+		currentString.append("<"+nodeName+">");
+		if(node.getNodeValue() != null) {
+			currentString.append(node.getNodeValue());
+		}
+		for(int i=0; i<node.getChildNodes().getLength(); i++) {
+			currentString = getNodeString(node.getChildNodes().item(i), currentString);
+		}
+		currentString.append("</"+nodeName+">");
+		return currentString;
+	}
 }
