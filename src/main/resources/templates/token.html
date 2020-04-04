@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>vuln-spring Token</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div th:replace="fragments/header :: header"></div>
+	<span th:if="${generatedtoken}">
+		<p>Token Generated for your Username:</p>
+		<p th:text="${generatedtoken}"></p>
+	</span>
+	
+	<h2>Validate JWT:</h2>
+	<form target="/token" method="post" name="getJWT">
+		Base64 encoded JWT:<input name="jwtString">
+		<input type="submit" value="Sumbit">
+	</form>
+	<p th:text="${isValidMessage}"></p>
+</body>
+</html>

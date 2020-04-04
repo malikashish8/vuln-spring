@@ -32,6 +32,10 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
 @Controller
 public class WebController {
 
@@ -253,5 +257,38 @@ public class WebController {
 	public String support(Model model) {
 		model.addAttribute("supportmessage", "Support Desk is under construction. Send an email to support@example.com.");
 		return "support";
+	}
+	
+	@GetMapping("/token")
+	public String jwt(HttpSession session, Model model) {
+		String username = (String) session.getAttribute("username");
+		
+		// Issues - JWT - Insecure Implementation
+		Algorithm algorithmNone = Algorithm.none();
+		String token = JWT.create()
+		        .withIssuer("vulnspring")
+		        .withClaim("username", username)
+		        .sign(algorithmNone);
+		logger.debug("Generated Token: " + token);
+		model.addAttribute("generatedtoken", token);
+		return "token";
+	}
+	
+	@PostMapping("/token")
+	public String jwt(Model model, @RequestParam String jwtString,
+			HttpSession session) {
+		// Issues - JWT - Insecure Implementation
+		Algorithm algorithmNone = Algorithm.none();
+		DecodedJWT decodedJWT = JWT.decode(jwtString);
+		
+		// Logical Flow - No validation, just decoding
+		String usernameFromJWT = decodedJWT.getClaim("username").asString();
+		if(usernameFromJWT.equalsIgnoreCase((String) session.getAttribute("username"))) {
+			model.addAttribute("isValidMessage", "Token is valid for your username!");
+		}
+		else {
+			model.addAttribute("isValidMessage", "Invalid Token!");
+		}
+		return "token";
 	}
 }

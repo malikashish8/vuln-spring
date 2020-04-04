@@ -13,9 +13,9 @@ Vulnerabilities are tagged with a comment with `Issue` string. Searching for it 
 * Sensitive Data Exposure - Logging of Sensitive data
 * XXE
 * Open Redirect
+* Broken Access Control - JWT issues
 
 ### ToDo
-* Broken Access Control - JWT issues
 * Insecure Deserialization
 
 ## Design
