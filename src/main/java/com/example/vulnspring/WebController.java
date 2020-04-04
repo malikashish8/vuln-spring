@@ -239,4 +239,19 @@ public class WebController {
 		currentString.append("</"+nodeName+">");
 		return currentString;
 	}
+	
+	@GetMapping("/support")
+	public String support(@RequestParam (required=false) String desk) {
+		String helpDeskLocation = desk;
+		if(helpDeskLocation != null)
+			// Issue - Open Redirect
+			return "redirect:" + helpDeskLocation;
+		return "support";
+	}
+	
+	@GetMapping("/support/*")
+	public String support(Model model) {
+		model.addAttribute("supportmessage", "Support Desk is under construction. Send an email to support@example.com.");
+		return "support";
+	}
 }

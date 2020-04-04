@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>vuln-spring Update</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div th:replace="fragments/header :: header"></div>
+<span th:unless="${supportmessage}">
+	Select the Help Desk:<br/>
+	<div id="helpdesk">
+	  <input type="radio" id="banking" name="helpdesk" value="banking"> Banking
+	  <input type="radio" id="credit" name="helpdesk" value="credit"> Credit
+	  <input type="radio" id="loan" name="helpdesk" value="loan" checked="checked"> Loan
+	  
+	</div>
+	<input type="button" name="submitSelected" id="submitSelected" value="Navigate">
+	<br/>
+</span>
+<span th:if="${supportmessage}">
+	Support Desk Message: <p th:text="${supportmessage}"></p>
+</span>
+<script>
+function submitSelected() {
+	var selectedHelpDesk = document.querySelector('input[name="helpdesk"]:checked').value;
+	var location = window.origin + window.location.pathname + "?desk=" + window.origin + 
+			window.location.pathname + "/" + selectedHelpDesk;
+	console.log(location);
+	document.location = location;
+}
+document.getElementById("submitSelected").onclick = submitSelected;
+</script>
+</body>
+</html>
