@@ -1,9 +1,15 @@
 package com.example.vulnspring;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Base64;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -35,6 +41,8 @@ import org.xml.sax.SAXException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+
+import lombok.Getter;
 
 @Controller
 public class WebController {
@@ -277,8 +285,6 @@ public class WebController {
 	@PostMapping("/token")
 	public String jwt(Model model, @RequestParam String jwtString,
 			HttpSession session) {
-		// Issues - JWT - Insecure Implementation
-		Algorithm algorithmNone = Algorithm.none();
 		DecodedJWT decodedJWT = JWT.decode(jwtString);
 		
 		// Logical Flow - No validation, just decoding
@@ -291,4 +297,56 @@ public class WebController {
 		}
 		return "token";
 	}
+	
+	@GetMapping("/address")
+	public String addressValidation(Model model) throws IOException {
+		AddressDetails ad = new AddressDetails(1, "Bourke Street");
+		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(ad);
+        oos.close();
+        String b64 = Base64.getEncoder().encodeToString(baos.toByteArray()); 
+		model.addAttribute("encodedAddress", b64);
+		return "address";
+	}
+	
+	@PostMapping("/address")
+	public String addressValidation(Model model, @RequestParam String encodedString) {
+		byte [] data = Base64.getDecoder().decode(encodedString);
+        ObjectInputStream ois;
+		try {
+			// Issue - Insecure Deserialization
+			ois = new ObjectInputStream(new ByteArrayInputStream(data));
+			AddressDetails addressDetails  = (AddressDetails) ois.readObject();
+	        ois.close();
+	        model.addAttribute("decodedAddress", addressDetails);
+		} catch (IOException e) {
+			e.printStackTrace();
+			model.addAttribute("decodedAddress", 
+					"Error: Something went wrong with deserialization!");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			model.addAttribute("decodedAddress", 
+					"Error: Something went wrong with deserialization!");
+		}
+		return "address";
+	}
+	
+}
+
+class AddressDetails implements Serializable {
+	@Getter
+	int streetNumber;
+	@Getter
+	String streetName;
+	AddressDetails(int streetNumber, String streetName) {
+		this.streetNumber = streetNumber;
+		this.streetName = streetName;
+	}
+	@Override
+	public String toString() {
+		return "{streetNumber: "+streetNumber+", streetName: "+streetName+"}";
+	}
+	
 }

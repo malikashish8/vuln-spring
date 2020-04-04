@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>vuln-spring Address</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div th:replace="fragments/header :: header"></div>
+	<span th:if="${encodedAddress}">
+	<h2>Sample Object:</h2>
+	<p th:text="${encodedAddress}"></p>
+	</span>
+	<form name="addressForm" action="/address" method="post">
+		<h2>Insert Encoded Address</h2>
+		<input name="encodedString" required>
+		<input type="submit" value="Submit">
+	</form>
+	<p th:text="${decodedAddress}"></p>
+</body>
+</html>
