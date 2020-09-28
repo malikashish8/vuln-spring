@@ -6,9 +6,7 @@ db:
   ports:
     - "3306:3306"
 app:
-  image: malikashish8/vuln-spring
-  environment:
-      RAILS_ENV: development
+  build: ./
   links:
       - db
   ports:
