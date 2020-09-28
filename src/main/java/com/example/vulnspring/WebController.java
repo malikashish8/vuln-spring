@@ -40,8 +40,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import lombok.Getter;
-
 @Controller
 public class WebController {
 
@@ -50,12 +48,11 @@ public class WebController {
 
 	private static final Logger logger = LoggerFactory.getLogger(WebController.class);
 
-	@GetMapping(value= {"/", "/home"})
+	@GetMapping(value = { "/", "/home" })
 	public String home(Model model, HttpSession session) {
 		model.addAttribute("username", session.getAttribute("username"));
 		return "home";
 	}
-	
 
 	@GetMapping("/login")
 	public String login(Model model) {
@@ -79,9 +76,10 @@ public class WebController {
 		// Issue - SQL Injection
 		String query = "SELECT * FROM users WHERE USERNAME=\"" + username + "\" AND PASSWORD=\"" + password + "\"";
 		Map<String, Object> result = jdbcTemplate.queryForMap(query);
-		if(result.containsKey("username"))
+		if (result.containsKey("username"))
 			return true;
-		else return false;
+		else
+			return false;
 	}
 
 	@GetMapping("/logout")
@@ -95,7 +93,7 @@ public class WebController {
 		String statement = "SELECT name FROM users WHERE username=?";
 		Map<String, Object> resultMap = jdbcTemplate.queryForMap(statement,
 				new Object[] { session.getAttribute("username") });
-		
+
 		// Stored XSS
 		model.addAttribute("name", resultMap.get("name"));
 		return "update";
@@ -104,20 +102,17 @@ public class WebController {
 	@PostMapping("/update")
 	public String update(HttpSession session, @RequestParam(name = "newname") String newName, Model model) {
 		String statement = "UPDATE users SET name = ? WHERE username = ?";
-		int status = jdbcTemplate.update(statement,
-				new Object[] { newName, session.getAttribute("username")});
-		logger.info("Running statement: " + statement + newName + " "
-				+ session.getAttribute("username"));
+		int status = jdbcTemplate.update(statement, new Object[] { newName, session.getAttribute("username") });
+		logger.info("Running statement: " + statement + newName + " " + session.getAttribute("username"));
 		logger.info("Result status for transfer is " + String.valueOf(status));
-		
-		if(status == 1) {
+
+		if (status == 1) {
 			model.addAttribute("error", "Update Failed!");
 			// Reflected XSS
 			model.addAttribute("name", newName);
-		}	
+		}
 		return "update";
 	}
-
 
 	@PostMapping("/checkdb")
 	public String checkDB(@RequestParam(name = "dbpath") String dbpath, Model model)
@@ -213,140 +208,142 @@ public class WebController {
 		return "transfer";
 
 	}
-	
+
 	@GetMapping("/issue")
 	public String issue(Model model) {
 		return "issue";
 	}
-	
-	@PostMapping(value="/issue",
-			consumes = MediaType.APPLICATION_XML_VALUE)
-	public String issue(Model model, @RequestBody String body) 
+
+	@PostMapping(value = "/issue", consumes = MediaType.APPLICATION_XML_VALUE)
+	public String issue(Model model, @RequestBody String body)
 			throws ParserConfigurationException, SAXException, IOException {
 		// Issue - XXE
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document doc = dBuilder.parse(new InputSource(new StringReader(body)));
-		
+
 		String parsedDocument = getNodeString(doc.getFirstChild(), new StringBuffer()).toString();
 		logger.debug("Parsed XML: \n" + parsedDocument);
 		model.addAttribute("parsedDocument", parsedDocument);
-	
+
 		return "issue";
 	}
-	
+
 	StringBuffer getNodeString(Node node, StringBuffer currentString) {
 		String nodeName = node.getNodeName();
 		// ignore empty text node
-		if(nodeName.equals("#text") && node.getNodeValue().trim().equals("")) {
+		if (nodeName.equals("#text") && node.getNodeValue().trim().equals("")) {
 			return currentString;
 		}
-		currentString.append("<"+nodeName+">");
-		if(node.getNodeValue() != null) {
+		currentString.append("<" + nodeName + ">");
+		if (node.getNodeValue() != null) {
 			currentString.append(node.getNodeValue());
 		}
-		for(int i=0; i<node.getChildNodes().getLength(); i++) {
+		for (int i = 0; i < node.getChildNodes().getLength(); i++) {
 			currentString = getNodeString(node.getChildNodes().item(i), currentString);
 		}
-		currentString.append("</"+nodeName+">");
+		currentString.append("</" + nodeName + ">");
 		return currentString;
 	}
-	
+
 	@GetMapping("/support")
-	public String support(@RequestParam (required=false) String desk) {
+	public String support(@RequestParam(required = false) String desk) {
 		String helpDeskLocation = desk;
-		if(helpDeskLocation != null)
+		if (helpDeskLocation != null)
 			// Issue - Open Redirect
 			return "redirect:" + helpDeskLocation;
 		return "support";
 	}
-	
+
 	@GetMapping("/support/*")
 	public String support(Model model) {
-		model.addAttribute("supportmessage", "Support Desk is under construction. Send an email to support@example.com.");
+		model.addAttribute("supportmessage",
+				"Support Desk is under construction. Send an email to support@example.com.");
 		return "support";
 	}
-	
+
 	@GetMapping("/token")
 	public String jwt(HttpSession session, Model model) {
 		String username = (String) session.getAttribute("username");
-		
+
 		// Issues - JWT - Insecure Implementation
 		Algorithm algorithmNone = Algorithm.none();
-		String token = JWT.create()
-		        .withIssuer("vulnspring")
-		        .withClaim("username", username)
-		        .sign(algorithmNone);
+		String token = JWT.create().withIssuer("vulnspring").withClaim("username", username).sign(algorithmNone);
 		logger.debug("Generated Token: " + token);
 		model.addAttribute("generatedtoken", token);
 		return "token";
 	}
-	
+
 	@PostMapping("/token")
-	public String jwt(Model model, @RequestParam String jwtString,
-			HttpSession session) {
+	public String jwt(Model model, @RequestParam String jwtString, HttpSession session) {
 		DecodedJWT decodedJWT = JWT.decode(jwtString);
-		
+
 		// Logical Flow - No validation, just decoding
 		String usernameFromJWT = decodedJWT.getClaim("username").asString();
-		if(usernameFromJWT.equalsIgnoreCase((String) session.getAttribute("username"))) {
+		if (usernameFromJWT.equalsIgnoreCase((String) session.getAttribute("username"))) {
 			model.addAttribute("isValidMessage", "Token is valid for your username!");
-		}
-		else {
+		} else {
 			model.addAttribute("isValidMessage", "Invalid Token!");
 		}
 		return "token";
 	}
-	
+
 	@GetMapping("/address")
 	public String addressValidation(Model model) throws IOException {
 		AddressDetails ad = new AddressDetails(1, "Bourke Street");
-		
+
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(ad);
-        oos.close();
-        String b64 = Base64.getEncoder().encodeToString(baos.toByteArray()); 
+		ObjectOutputStream oos = new ObjectOutputStream(baos);
+		oos.writeObject(ad);
+		oos.close();
+		String b64 = Base64.getEncoder().encodeToString(baos.toByteArray());
 		model.addAttribute("encodedAddress", b64);
 		return "address";
 	}
-	
+
 	@PostMapping("/address")
 	public String addressValidation(Model model, @RequestParam String encodedString) {
-		byte [] data = Base64.getDecoder().decode(encodedString);
-        ObjectInputStream ois;
+		byte[] data = Base64.getDecoder().decode(encodedString);
+		ObjectInputStream ois;
 		try {
 			// Issue - Insecure Deserialization
 			ois = new ObjectInputStream(new ByteArrayInputStream(data));
-			AddressDetails addressDetails  = (AddressDetails) ois.readObject();
-	        ois.close();
-	        model.addAttribute("decodedAddress", addressDetails);
+			AddressDetails addressDetails = (AddressDetails) ois.readObject();
+			ois.close();
+			model.addAttribute("decodedAddress", addressDetails);
 		} catch (IOException e) {
 			e.printStackTrace();
-			model.addAttribute("decodedAddress", 
-					"Error: Something went wrong with deserialization!");
+			model.addAttribute("decodedAddress", "Error: Something went wrong with deserialization!");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
-			model.addAttribute("decodedAddress", 
-					"Error: Something went wrong with deserialization!");
+			model.addAttribute("decodedAddress", "Error: Something went wrong with deserialization!");
 		}
 		return "address";
 	}
-	
+
 }
 
 class AddressDetails implements Serializable {
-	@Getter
 	int streetNumber;
-	@Getter
+
+	public int getStreetNumber() {
+		return streetNumber;
+	}
+
+	public String getStreetName() {
+		return streetName;
+	}
+
 	String streetName;
+
 	AddressDetails(int streetNumber, String streetName) {
 		this.streetNumber = streetNumber;
 		this.streetName = streetName;
 	}
+
 	@Override
 	public String toString() {
-		return "{streetNumber: "+streetNumber+", streetName: "+streetName+"}";
+		return "{streetNumber: " + streetNumber + ", streetName: " + streetName + "}";
 	}
-	
+
 }
