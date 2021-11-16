@@ -1,6 +1,6 @@
 build_rules:
   - id: only_reachable
     severity: [critical, moderate]
-    finding_types: [oss_vuln, vuln]
+    finding_types: [vuln]
     options:
       reachable: true
