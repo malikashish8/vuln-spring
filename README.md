@@ -4,7 +4,7 @@ Intentionally Vulnerable Spring Application to test coverage of SAST tools.
 
 ## Vulnerabilities
 
-Vulnerabilities are tagged with a comment with `Issue` string. Searching for it in the whole code base should help find all vulnerabilities.
+Vulnerabilities are tagged with a comment with `// Issue` string. Searching for it in the whole code base should help find all vulnerabilities.
 
 ### List
 

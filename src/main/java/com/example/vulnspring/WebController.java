@@ -266,7 +266,7 @@ public class WebController {
 	public String jwt(HttpSession session, Model model) {
 		String username = (String) session.getAttribute("username");
 
-		// Issues - JWT - Insecure Implementation
+		// Issue - JWT - Insecure Implementation
 		Algorithm algorithmNone = Algorithm.none();
 		String token = JWT.create().withIssuer("vulnspring").withClaim("username", username).sign(algorithmNone);
 		logger.debug("Generated Token: " + token);
