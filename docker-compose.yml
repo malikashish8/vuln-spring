@@ -1,13 +1,13 @@
-db:
-  build: ./db
-  dockerfile: Dockerfile
-  environment:
-    MYSQL_ROOT_PASSWORD: "Password"
-  ports:
-    - "3306:3306"
-app:
-  build: ./
-  links:
-      - db
-  ports:
-    - "8082:8082"
+services:
+  db:
+    build: ./db
+    environment:
+      MYSQL_ROOT_PASSWORD: "Password"
+    ports:
+      - "3306:3306"
+  app:
+    build: ./
+    links:
+        - db
+    ports:
+      - "8082:8082"

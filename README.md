@@ -33,6 +33,10 @@ Simply run the following Docker Compose command after changing to code directory
 
 This will run two containers. One for the Spring app and another for Maria DB. The app listens on [http://127.0.0.1:8082](http://127.0.0.1:8082) by default.
 
+## Develop
+
+VS Code dev containers are used to develop this app. The configuration in `.devcontainer` also runs the db server.
+
 ## ToDo
 
 * Add Bootstrap CSS so the web pages look better
