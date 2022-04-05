@@ -63,10 +63,11 @@ public class WebController {
 	public String login(HttpSession session, @RequestParam(name = "username", required = true) String username,
 			@RequestParam(name = "password", required = true) String password, Model model) {
 		if (loginSuccess(username, password)) {
-			logger.debug(username + ":" + password); // Issue - password logged
+			logger.debug("Login with: " + username + ":" + password); // Issue - password logged
 			session.setAttribute("username", username);
 			return "redirect:home";
 		}
+		logger.debug("Failed login for " + username);
 		return "login";
 	}
 
@@ -74,12 +75,16 @@ public class WebController {
 		if (username == null || password == null)
 			return false;
 		// Issue - SQL Injection
-		String query = "SELECT * FROM users WHERE USERNAME=\"" + username + "\" AND PASSWORD=\"" + password + "\"";
-		Map<String, Object> result = jdbcTemplate.queryForMap(query);
-		if (result.containsKey("username"))
-			return true;
-		else
+		try {
+			String query = "SELECT * FROM users WHERE USERNAME=\"" + username + "\" AND PASSWORD=\"" + password + "\"";
+			Map<String, Object> result = jdbcTemplate.queryForMap(query);
+			if (result.containsKey("username"))
+				return true;
+			else
+				return false;
+		} catch (EmptyResultDataAccessException e) {
 			return false;
+		}
 	}
 
 	@GetMapping("/logout")
