@@ -48,7 +48,7 @@ jobs:
         fi
         if [ "$BUILT" = "1" ] && [ -d "$TARGET_DIR" ]; then
           jar cvf app.jar -C $TARGET_DIR .
-          ${GITHUB_WORKSPACE}/sl analyze --wait --app $(basename $(pwd)) --tag branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} --container Dockerfile --java --cpg app.jar
+          ${GITHUB_WORKSPACE}/sl analyze --wait --app $(basename $(pwd)) --tag branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} --sca --container Dockerfile --java --cpg app.jar
           ${GITHUB_WORKSPACE}/sl check-analysis --app $(basename $(pwd)) --v2 --config shiftleft.yml \
             --source tag.branch=master --branch "${{ github.head_ref || steps.extract_branch.outputs.branch }}" \
             --report \
