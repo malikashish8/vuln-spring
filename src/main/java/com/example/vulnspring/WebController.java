@@ -128,6 +128,11 @@ public class WebController {
 		return "checkdb";
 	}
 
+	@GetMapping("/secret")
+	public String checkDB() {
+		return "secretstring";
+	}
+
 	@GetMapping("/transfer")
 	public String transfer(HttpSession session, Model model) {
 		String getBalanceStatement = "SELECT * FROM users WHERE username=?";
